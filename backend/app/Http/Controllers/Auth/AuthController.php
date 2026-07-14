@@ -11,14 +11,18 @@ use App\Http\Requests\Auth\ForgotPasswordRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Models\Otp;
 use App\Models\User;
+use GuzzleHttp\Client as GuzzleClient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
+use Resend\Client as ResendClient;
+use Resend\Transporters\HttpTransporter;
+use Resend\ValueObjects\ApiKey;
+use Resend\ValueObjects\Transporter\BaseUri;
+use Resend\ValueObjects\Transporter\Headers;
 
 class AuthController extends Controller
 {
@@ -232,7 +236,45 @@ class AuthController extends Controller
     protected function sendOtpEmail(string $email, string $otp, string $type): void
     {
         $subject = $type === 'password_reset' ? 'Password Reset Verification' : 'Account Verification';
-        $message = "Your verification code is {$otp}";
-        Mail::to($email)->send(new \App\Mail\OtpMail($subject, $message));
+        $message = "Your verification code is {$otp}. This code expires in 5 minutes.";
+
+        try {
+            $apiKey = trim((string) config('services.resend.key', env('RESEND_API_KEY', '')));
+            if ($apiKey === '') {
+                throw new \RuntimeException('Resend API key is not configured.');
+            }
+
+            $clientOptions = [];
+            $disableVerify = filter_var(env('RESEND_DISABLE_VERIFY', null), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+            $caBundle = trim((string) env('RESEND_CA_BUNDLE', ''));
+
+            if ($disableVerify === true || app()->environment(['local', 'testing'])) {
+                $clientOptions['verify'] = false;
+            } elseif ($caBundle !== '') {
+                $clientOptions['verify'] = $caBundle;
+            }
+
+            $guzzle = new GuzzleClient($clientOptions);
+            $transport = new HttpTransporter(
+                $guzzle,
+                BaseUri::from('api.resend.com'),
+                Headers::withAuthorization(ApiKey::from($apiKey))
+            );
+            $resend = new ResendClient($transport);
+            $resend->emails->send([
+                'from' => sprintf('%s <%s>', trim((string) config('mail.from.name', 'T Lab')), trim((string) config('mail.from.address', 'onboarding@resend.dev'))),
+                'to' => [$email],
+                'subject' => $subject,
+                'html' => sprintf('<p>%s</p>', nl2br(e($message))),
+                'text' => $message,
+            ]);
+        } catch (\Throwable $exception) {
+            Log::error('OTP email delivery failed', [
+                'email' => $email,
+                'exception' => $exception->getMessage(),
+            ]);
+
+            throw new \RuntimeException('Unable to send verification email right now. Please try again.');
+        }
     }
 }

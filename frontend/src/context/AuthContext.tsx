@@ -1,11 +1,11 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { Role, User } from '../types';
+import { User } from '../types';
 import { getMe, logoutUser } from '../lib/auth';
 
 interface AuthContextValue {
   currentUser: User | null;
   loading: boolean;
-  login: (role: Role) => void;
+  login: (user: User | null) => void;
   logout: () => Promise<void>;
 }
 
@@ -18,6 +18,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
     if (!token) {
+      setCurrentUser(null);
       setLoading(false);
       return;
     }
@@ -33,9 +34,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .finally(() => setLoading(false));
   }, []);
 
-  const login = (role: Role) => {
-    void role;
-    setCurrentUser(null);
+  const login = (user: User | null) => {
+    setCurrentUser(user);
+    setLoading(false);
   };
 
   const logout = async () => {
@@ -46,6 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     localStorage.removeItem('auth_token');
     setCurrentUser(null);
+    setLoading(false);
   };
 
   return (

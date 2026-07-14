@@ -17,7 +17,7 @@ class RegisterOtpRequest extends FormRequest
             'name' => ['required', 'string', 'min:2', 'max:100', 'regex:/^[A-Za-z\s\'-]+$/'],
             'email' => ['required', 'email', 'max:255'],
             'password' => ['required', 'string', 'min:8', 'confirmed', 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).+$/'],
-            'role' => ['required', 'in:Project Manager,Team Member'],
+            'role' => ['required', 'string', 'in:Project Manager,Team Member,Administrator'],
         ];
     }
 }

@@ -6,9 +6,11 @@ import { AuthShell } from '../components/auth/AuthShell';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { loginUser } from '../lib/auth';
+import { useAuth } from '../context/AuthContext';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -22,9 +24,10 @@ export default function LoginPage() {
     setError('');
     try {
       const data = await loginUser({ email, password, remember_me: rememberMe });
+      login(data.user ?? null);
       toast.success(data.message || 'Signed in successfully.');
-      const redirectPath = data.user?.role === 'Administrator' ? '/admin/dashboard' : data.user?.role === 'Project Manager' ? '/manager/dashboard' : '/team/dashboard';
-      router.push(redirectPath);
+      const redirectPath = data.user?.role === 'Administrator' ? '/admin/dashboard' : '/dashboard';
+      router.replace(redirectPath);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to sign in.');
       toast.error(err instanceof Error ? err.message : 'Unable to sign in.');

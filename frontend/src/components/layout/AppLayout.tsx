@@ -7,15 +7,15 @@ import { ChatBot } from '../chatbot/ChatBot';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 export function AppLayout({ children }: { children: React.ReactNode }) {
-  const { currentUser } = useAuth();
+  const { currentUser, loading } = useAuth();
   const { theme } = useTheme();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
   useEffect(() => {
-    if (!currentUser) {
+    if (!loading && !currentUser) {
       router.replace('/login');
     }
-  }, [currentUser, router]);
+  }, [currentUser, loading, router]);
   if (!currentUser) return null;
   return (
     <div className="flex h-screen w-full bg-bg overflow-hidden">
