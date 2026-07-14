@@ -13,9 +13,11 @@ use App\Models\Otp;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -38,7 +40,10 @@ class AuthController extends Controller
             return response()->json(['message' => 'Please verify your email first.'], 403);
         }
 
-        $token = $user->createToken('auth-token')->plainTextToken;
+        $ttl = $request->boolean('remember_me') ? config('jwt.remember_ttl') : config('jwt.ttl');
+        JWTAuth::factory()->setTTL($ttl);
+        $token = JWTAuth::fromUser($user);
+        JWTAuth::factory()->setTTL(config('jwt.ttl'));
 
         return response()->json([
             'message' => 'Signed in successfully.',
@@ -137,13 +142,24 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        $request->user()?->currentAccessToken()?->delete();
+        try {
+            JWTAuth::parseToken()->invalidate();
+        } catch (\Throwable $exception) {
+            // ignore invalidation failures and still clear the session
+        }
+
         return response()->json(['message' => 'Signed out successfully.']);
     }
 
     public function me(Request $request)
     {
-        return response()->json(['user' => $request->user()?->only(['id', 'name', 'email', 'role', 'status'])]);
+        try {
+            $user = JWTAuth::parseToken()->authenticate();
+        } catch (\Throwable $exception) {
+            return response()->json(['message' => 'Unauthenticated.'], 401);
+        }
+
+        return response()->json(['user' => $user?->only(['id', 'name', 'email', 'role', 'status'])]);
     }
 
     public function requestForgotOtp(ForgotPasswordRequest $request)
@@ -190,7 +206,6 @@ class AuthController extends Controller
         $user->password = Hash::make($request->password);
         $user->save();
 
-        DB::table('personal_access_tokens')->where('tokenable_id', $user->id)->delete();
         $otpRecord->delete();
         Log::info('Password reset completed', ['email' => $email]);
 

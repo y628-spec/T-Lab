@@ -16,6 +16,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -24,7 +25,7 @@ export default function LoginPage() {
     setLoading(true);
     setError('');
     try {
-      const data = await loginUser({ email, password, role });
+      const data = await loginUser({ email, password, role, remember_me: rememberMe });
       toast.success(data.message || 'Signed in successfully.');
       router.push(role === 'Administrator' ? '/dashboard' : role === 'Project Manager' ? '/dashboard' : '/dashboard');
     } catch (err) {
@@ -64,6 +65,18 @@ export default function LoginPage() {
           </button>
         </div>
 
+        <div className="flex items-center justify-between gap-4">
+          <label className="flex items-center gap-2 text-sm text-secondary">
+            <input
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(event) => setRememberMe(event.target.checked)}
+              className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent"
+            />
+            Remember me
+          </label>
+          <span className="text-xs text-muted-foreground">Keep me signed in for 7 days</span>
+        </div>
         <div>
           <span className="block text-sm font-medium text-secondary mb-2">Access level</span>
           <div className="grid grid-cols-3 gap-2">
