@@ -112,6 +112,10 @@ class TaskController extends Controller
 
         $data = $request->validate($rules);
 
+        if (array_key_exists('status', $data)) {
+            $data['status'] = $this->normalizeTaskStatus($data['status']);
+        }
+
         return DB::transaction(function () use ($task, $data, $request) {
             $old = $task->getOriginal();
             $task->update($data);
@@ -149,6 +153,24 @@ class TaskController extends Controller
             ]);
             return response()->json(['message' => 'deleted']);
         });
+    }
+
+    private function normalizeTaskStatus(?string $status): ?string
+    {
+        if ($status === null) {
+            return null;
+        }
+
+        $normalized = trim($status);
+        $lower = strtolower($normalized);
+
+        return match ($lower) {
+            'to do', 'todo', 'to-do' => 'Todo',
+            'in progress', 'in-progress', 'inprogress' => 'In Progress',
+            'review' => 'Review',
+            'done', 'completed', 'complete' => 'Completed',
+            default => $normalized,
+        };
     }
 
     private function authorizeTaskAccess($user, Task $task)

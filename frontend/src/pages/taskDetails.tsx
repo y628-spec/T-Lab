@@ -94,7 +94,13 @@ export function TaskDetails() {
     Math.round(task.actualHours / task.estimatedHours * 100)
   ) :
   0;
+  const canChangeStatus = currentUser?.role === 'Administrator' || currentUser?.role === 'Project Manager' || (currentUser?.role === 'Team Member' && task.assigneeId === currentUser?.id);
   const changeStatus = (s: TaskStatus) => {
+    if (!canChangeStatus) {
+      toast.error('You can only update the status of tasks assigned to you.');
+      return;
+    }
+
     updateTaskStatus(task.id, s, currentUser?.id);
     toast.success(`Status updated to ${s === 'Todo' ? 'To Do' : s}`);
   };
@@ -271,8 +277,9 @@ export function TaskDetails() {
               <button
                 key={s}
                 onClick={() => changeStatus(s)}
+                disabled={!canChangeStatus}
                 className={cn(
-                  'py-3 rounded-xl text-sm font-medium border transition-colors',
+                  'py-3 rounded-xl text-sm font-medium border transition-colors disabled:opacity-50 disabled:cursor-not-allowed',
                   task.status === s ?
                   'bg-accent text-black border-accent' :
                   'bg-bg border-line text-secondary hover:border-accent'
