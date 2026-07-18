@@ -1,8 +1,5 @@
 [build]
 builder = "NIXPACKS"
-buildCommand = "composer install --no-dev --optimize-autoloader && npm install && npm run build"
 
 [deploy]
-preDeployCommand = "php artisan migrate --force"
-# Start command is intentionally omitted so Railpack uses its robust production web server (Nginx + PHP-FPM or FrankenPHP)
-# rather than the single-threaded development server.
+startCommand = "php artisan migrate --force && php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}"
