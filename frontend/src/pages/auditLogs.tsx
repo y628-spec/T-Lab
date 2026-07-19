@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Download, ScrollText } from 'lucide-react';
 import { toast } from 'sonner';
 import { useData } from '../context/DataContext';

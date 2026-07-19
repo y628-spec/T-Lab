@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Bot, MessageSquareText, Send, Sparkles, Zap } from 'lucide-react';
 import { AppLayout } from '../components/layout/AppLayout';
 import { PageHeader } from '../components/ui/PageHeader';

@@ -3,14 +3,14 @@ nixPkgs = ["php84", "php84Packages.composer", "php84Extensions.pgsql", "php84Ext
 
 [phases.install]
 cmds = [
-  "cd backend && composer install --optimize-autoloader --no-scripts --no-interaction",
-  "cd frontend && npm ci"
+  "cd backend && composer install --no-interaction --optimize-autoloader",
+  "cd frontend && npm install"
 ]
 
 [phases.build]
 cmds = [
-  "cd backend && touch database/database.sqlite",
-  "cd backend && composer install --no-dev --optimize-autoloader",
+  "cd backend && composer install --no-dev --no-interaction --optimize-autoloader",
+  "cd frontend && npm install",
   "cd frontend && npm run build"
 ]
 
@@ -23,4 +23,4 @@ APP_KEY = "base64:dummy_for_build"
 JWT_SECRET = "dummy_jwt_secret_for_build"
 
 [start]
-cmd = "cd backend && php artisan serve --host=0.0.0.0 --port=${PORT:-8000}"
+cmd = "cd backend && php artisan migrate --force && php artisan config:cache && php artisan route:cache && php artisan serve --host=0.0.0.0 --port=${PORT:-8000}"

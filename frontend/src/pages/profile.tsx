@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Mail, Phone, MapPin, Briefcase, GraduationCap } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { PageHeader } from '../components/ui/PageHeader';

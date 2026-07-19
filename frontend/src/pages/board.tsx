@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight, Columns3 } from 'lucide-react';
 import { toast } from 'sonner';

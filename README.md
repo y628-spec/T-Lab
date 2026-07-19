@@ -59,6 +59,12 @@ DB_USERNAME=postgres
 DB_PASSWORD=2001
 ```
 
+## Deployment on Railway
+
+This project is deployed through Railway using Nixpacks rather than Docker. The build uses the root [nixpacks.toml](nixpacks.toml) configuration to install the backend PHP dependencies, install the frontend Node dependencies, build the frontend assets, and start the Laravel app with migrations and Laravel cache warmup.
+
+No Dockerfiles, Docker Compose files, or container-specific scripts are used in this repository.
+
 ## Quick Start on Windows
 
 ### Option 1: Use the batch file

@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { MapPin, Briefcase } from 'lucide-react';
 import { AppLayout } from '../components/layout/AppLayout';
 import { useData } from '../context/DataContext';

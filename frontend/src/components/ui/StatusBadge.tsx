@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { TaskStatus } from '../../types';
 import { cn } from '../../lib/utils';
 // Legacy statuses ("To Do") map onto the new 4-status system

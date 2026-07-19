@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { ArrowDown, ArrowRight, ArrowUp, AlertTriangle } from 'lucide-react';
 import { TaskPriority } from '../../types';
 import { cn } from '../../lib/utils';

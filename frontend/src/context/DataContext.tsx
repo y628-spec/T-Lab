@@ -1,4 +1,4 @@
-﻿import React, { useState, createContext, useContext, useEffect } from 'react';
+import { useState, createContext, useContext, useEffect } from 'react';
 import {
   Task,
   Project,

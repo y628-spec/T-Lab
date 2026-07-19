@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import { toast } from 'sonner';
 import { CalendarRange, FolderKanban, ShieldAlert, Sparkles, Users } from 'lucide-react';

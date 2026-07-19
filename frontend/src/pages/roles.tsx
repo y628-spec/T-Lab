@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { ShieldCheck, Check, X } from 'lucide-react';
 import { PageHeader } from '../components/ui/PageHeader';
 import { Card } from '../components/ui/Card';
